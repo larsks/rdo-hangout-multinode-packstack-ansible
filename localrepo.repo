@@ -5,4 +5,4 @@ failovermethod=priority
 enabled=1
 gpgcheck=0
 priority=0
-
+metadata_expire=10
