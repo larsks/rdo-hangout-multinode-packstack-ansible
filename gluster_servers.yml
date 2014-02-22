@@ -1,0 +1,46 @@
+- hosts: storage
+  gather_facts: false
+  tasks:
+    - file: path=/etc/yum.repos.d/gluster.repo state=file
+      ignore_errors: true
+      register: has_repo
+    - command: curl -sfL -o /etc/yum.repos.d/gluster.repo
+               http://download.gluster.org/pub/gluster/glusterfs/LATEST/CentOS/glusterfs-epel.repo
+      when: has_repo|failed
+    - yum: name={{item}} state=latest
+      with_items:
+        - glusterfs
+        - glusterfs-libs
+        - glusterfs-server
+        - glusterfs-fuse
+    - service: name=glusterd state=running enabled=true
+    - command: blkid /dev/vdb
+      ignore_errors: true
+      register: blkid
+    - command: mkfs -T ext4 -L brick0 /dev/vdb
+      when: blkid|failed
+    - file: path={{item}} state=directory owner=root group=root mode=0755
+      with_items:
+        - /export
+        - /export/vdb
+    - mount: fstype=ext4 name=/export/vdb src=/dev/vdb state=mounted
+    - file: path=/export/vdb/brick state=directory owner=root group=root mode=0755
+
+- hosts: storage0
+  gather_facts: false
+  tasks:
+    - command: gluster peer probe "{{hostvars[item].storage_ip}}"
+      with_items: groups.storage
+    - command: gluster volume info gv0
+      ignore_errors: true
+      register: vol_exists
+    - command: gluster volume create gv0 replica 2
+               {{hostvars.storage0.storage_ip}}:/export/vdb/brick 
+               {{hostvars.storage1.storage_ip}}:/export/vdb/brick
+      when: vol_exists|failed
+    - command: gluster volume status gv0
+      register: vol_status
+      ignore_errors: true
+    - command: gluster volume start gv0
+      when: vol_status|failed
+

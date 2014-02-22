@@ -1,0 +1,69 @@
+#!/bin/sh
+
+gen_ssh_host_entry() {
+cat <<EOF
+Host $1 $2
+	HostName $2
+	ProxyCommand ssh $user@$controller -W %h:%p
+	User $user
+	UserKnownHostsFile /dev/null
+	StrictHostkeyChecking no
+EOF
+}
+
+stack_name=$1
+user=ec2-user
+
+echo "querying heat for outputs"
+controller=$(heat output-show $stack_name osapi_external_ip | jq -r .)
+compute0=$(heat output-show $stack_name oscompute0_internal_ip | jq -r .[0].ip_address)
+compute1=$(heat output-show $stack_name oscompute1_internal_ip | jq -r .[0].ip_address)
+storage0=$(heat output-show $stack_name osstorage0_internal_ip | jq -r .[0].ip_address)
+storage1=$(heat output-show $stack_name osstorage1_internal_ip | jq -r .[0].ip_address)
+storage0_s=$(heat output-show $stack_name osstorage0_storage_ip | jq -r .[0].ip_address)
+storage1_s=$(heat output-show $stack_name osstorage1_storage_ip | jq -r .[0].ip_address)
+network=$(heat output-show $stack_name osnetwork_external_ip | jq -r .)
+
+echo "generating hosts file"
+cat > hosts <<EOF
+controller ansible_ssh_host=$controller
+network ansible_ssh_host=$network
+
+[compute]
+compute0 ansible_ssh_host=$compute0
+compute1 ansible_ssh_host=$compute1
+
+[storage]
+storage0 ansible_ssh_host=$storage0 storage_ip=$storage0_s
+storage1 ansible_ssh_host=$storage1 storage_ip=$storage1_s
+
+EOF
+
+echo "generating ssh_config"
+cat > ssh_config <<EOF
+$(gen_ssh_host_entry controller $controller)
+$(gen_ssh_host_entry network $network)
+$(gen_ssh_host_entry compute0 $compute0)
+$(gen_ssh_host_entry compute1 $compute1)
+$(gen_ssh_host_entry storage0 $storage0)
+$(gen_ssh_host_entry storage1 $storage1)
+EOF
+
+#echo "generating answers file"
+#sh answers.txt.in $controller $network $compute0 $compuet1 > answers.txt
+
+echo "generating wait-for-hosts script"
+cat <<EOF >wait-for-hosts
+#!/bin/sh
+
+for host in $controller $network $compute0 $compute1; do
+	while ! ssh -F ssh_config -o ConnectTimeout=10 \$host true 2> /dev/null; do
+		echo "waiting for \$host"
+		sleep 2
+	done
+
+	echo "\$host is up"
+done
+
+EOF
+

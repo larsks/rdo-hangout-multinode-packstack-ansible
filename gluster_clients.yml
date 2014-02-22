@@ -1,0 +1,6 @@
+- hosts:
+    - controller
+    - compute
+  tasks:
+    - yum: name=glusterfs-fuse state=latest
+

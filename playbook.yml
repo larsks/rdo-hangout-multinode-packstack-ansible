@@ -1,0 +1,19 @@
+- hosts: all
+
+- hosts: controller
+  gather_facts: false
+  tasks:
+    - file: path=/root/.ssh state=directory owner=root group=root mode=0700
+    - file: path=/root/.ssh/id_rsa state=file
+      ignore_errors: true
+      register: ssh_key
+    - command: ssh-keygen -t rsa -b 2048 -N '' -f /root/.ssh/id_rsa
+      when: ssh_key|failed
+    - fetch: flat=true src=/root/.ssh/id_rsa.pub dest=controller_id_rsa.pub
+
+- include: interfaces.yml
+- include: localrepo.yml
+- include: gluster_servers.yml
+- include: gluster_clients.yml
+- include: packstack.yml
+

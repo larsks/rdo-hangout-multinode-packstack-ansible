@@ -1,0 +1,13 @@
+heat_template_version: 2013-05-23
+
+resources:
+ 
+  vol_brick0:
+    type: OS::Cinder::Volume
+    properties:
+      size: 10
+  vol_brick1:
+    type: OS::Cinder::Volume
+    properties:
+      size: 10
+

@@ -1,0 +1,42 @@
+- hosts: 
+    - controller
+  gather_facts: false
+  roles:
+    - role: rhifcfg
+      ifcfg_device: eth1
+      ifcfg_bootproto: dhcp
+      ifcfg_defroute: "no"
+      ifcfg_peerdns: "no"
+      ifcfg_state: up
+    - role: rhifcfg
+      ifcfg_device: eth2
+      ifcfg_bootproto: dhcp
+      ifcfg_defroute: "no"
+      ifcfg_peerdns: "no"
+      ifcfg_state: up
+
+- hosts:
+    - network
+    - compute
+    - storage
+  gather_facts: false
+  roles:
+    - role: rhifcfg
+      ifcfg_device: eth1
+      ifcfg_bootproto: dhcp
+      ifcfg_defroute: "no"
+      ifcfg_peerdns: "no"
+      ifcfg_state: up
+    - role: rhifcfg
+      ifcfg_device: eth2
+      ifcfg_bootproto: dhcp
+      ifcfg_defroute: "no"
+      ifcfg_peerdns: "no"
+      ifcfg_state: up
+    - role: rhifcfg
+      ifcfg_device: eth3
+      ifcfg_bootproto: dhcp
+      ifcfg_defroute: "no"
+      ifcfg_peerdns: "no"
+      ifcfg_state: up
+

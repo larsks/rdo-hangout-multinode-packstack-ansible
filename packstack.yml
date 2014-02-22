@@ -1,0 +1,8 @@
+- hosts: all
+
+- hosts: controller
+  gather_facts: false
+  tasks:
+    - yum: name=openstack-packstack state=latest
+    - template: src=answers.txt dest=/root/answers.txt
+

@@ -1,0 +1,8 @@
+[local]
+name=Local repository
+baseurl=http://localrepo.local/repo/openstack/
+failovermethod=priority
+enabled=1
+gpgcheck=0
+priority=0
+

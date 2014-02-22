@@ -1,0 +1,23 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+    - authorized_key: user=root key="{{ lookup('file', 'controller_id_rsa.pub') }}"
+    - yum: name={{item}} state=latest
+      with_items:
+        - openssh-clients
+        - dbus
+        - avahi
+        - avahi-tools
+        - nss-mdns
+        - yum-plugin-priorities
+    - service: name={{item}} state=running enabled=true
+      with_items:
+        - messagebus
+        - avahi-daemon
+    - copy: src=localrepo.repo dest=/etc/yum.repos.d/local.repo
+    - command: rpm -q rdo-release
+      ignore_errors: true
+      register: rdo_release
+    - command: yum -d1 -y install http://rdo.fedorapeople.org/rdo-release.rpm
+      when: rdo_release|failed
+    - command: yum -d1 -y upgrade
