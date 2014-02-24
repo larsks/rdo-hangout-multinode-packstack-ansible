@@ -9,11 +9,3 @@
     - file: path=/mnt/gluster state=directory owner=root group=root
     - mount: fstype=glusterfs name=/mnt/gluster src={{hostvars.storage0.storage_ip}}:/gv0 state=mounted
 
-- hosts: controller
-  gather_facts: false
-  tasks:
-    - file: path={{item.path}} state=directory owner={{item.owner}} group={{item.owner}}
-      with_items:
-        - {path: /mnt/gluster/glance, owner: glance}
-        - {path: /mnt/gluster/nova, owner: nova}
-

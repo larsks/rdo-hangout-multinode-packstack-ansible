@@ -11,6 +11,7 @@
       when: ssh_key|failed
     - fetch: flat=true src=/root/.ssh/id_rsa.pub dest=controller_id_rsa.pub
 
+- include: etchosts.yml
 - include: interfaces.yml
 - include: localrepo.yml
 - include: gluster_servers.yml

@@ -5,4 +5,5 @@
   tasks:
     - yum: name=openstack-packstack state=latest
     - template: src=answers.txt dest=/root/answers.txt
+    - command: chdir=/root packstack --answer-file answers.txt
 

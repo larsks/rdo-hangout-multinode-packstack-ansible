@@ -1,0 +1,21 @@
+- hosts: compute
+  gather_facts: false
+  tasks:
+    # Facter facts are not available without first installing
+    # both facter *and* the json gem (necessary to support
+    # facter's --json option).
+    - name: make sure facter is installed
+      yum: name={{item}} state=latest
+      with_items:
+        - rubygem-json
+        - facter
+
+- hosts: compute
+  tasks:
+    - name: set up /etc/hosts
+      lineinfile: dest=/etc/hosts
+                   line="{{hostvars[item].ansible_eth0.ipv4.address}} {{hostvars[item].facter_hostname}}"
+                   regexp="{{hostvars[item].facter_hostname}}"
+                   state=present
+      with_items: groups.compute
+
