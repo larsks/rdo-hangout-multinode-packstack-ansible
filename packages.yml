@@ -2,6 +2,7 @@
   tasks:
     - yum: name={{item}} state=latest
       with_items:
+        - man
         - vim-enhanced
         - git
         - screen
