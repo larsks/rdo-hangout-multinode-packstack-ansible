@@ -1,0 +1,26 @@
+. /root/keystonrc_admin
+
+neutron net-create external --router:external=True
+neutron subnet-create --disable-dhcp external 172.16.13.0/24
+nova flavor-create m1.nano auto 128 1 1
+keystone tenant-create --name demo
+keystone user-create --name demo --tenant demo --pass demo
+
+cat > /root/keystonerc_demo <<EOF
+export OS_USERNAME=demo
+export OS_TENANT_NAME=demo
+export OS_PASSWORD=demo
+export OS_AUTH_URL=$OS_AUTH_URL
+export PS1='[\\u@\\h \\W(keystone_demo)]\\\$ '
+EOF
+
+. /root/keystonerc_demo
+neutron net-create net0
+neutron subnet-create --name net0-subnet0 net0 10.0.0.0/24
+neutron router-create extrouter
+neutron router-gateway-set extrouter external
+neutron router-interface-add extrouter net0-subnet0
+neutron security-group-rule-create --protocol icmp default
+neutron security-group-rule-create --protocol tcp \
+	--port-range-min 22 --port-range-max 22 default
+
