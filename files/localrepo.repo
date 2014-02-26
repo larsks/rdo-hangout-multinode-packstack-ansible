@@ -1,0 +1,9 @@
+[local]
+name=Local repository
+baseurl=http://localrepo.local/openstack/
+enabled=1
+gpgcheck=0
+priority=1
+metadata_expire=1
+skip_if_unavailable=1
+
