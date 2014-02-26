@@ -4,3 +4,8 @@
 - include: interfaces.yml
 - include: localrepo.yml
 
+- hosts: controller
+  tasks:
+    - copy: src=files/post-install dest=/root/post-install
+            owner=root group=root mode=0755
+

@@ -13,7 +13,7 @@
       with_items:
         - messagebus
         - avahi-daemon
-    - copy: src=localrepo.repo dest=/etc/yum.repos.d/local.repo
+    - copy: src=files/localrepo.repo dest=/etc/yum.repos.d/local.repo
     - command: rpm -q rdo-release
       ignore_errors: true
       register: rdo_release
