@@ -1,11 +1,17 @@
 #!/bin/sh
 
-curl -o /usr/local/bin/crux https://raw2.github.com/larsks/crux/master/crux
-chmod 755 /usr/local/bin/crux
+. /root/keystonerc_admin
 
-# Because this is so much easier than multiple keystone
-# invocations.
-/usr/local/bin/crux --user demo:demo::demo
+keystone tenant-create --name demo
+keystone user-create --name demo --tenant demo --pass demo
+
+cat > /root/keystonerc_demo <<EOF
+export OS_USERNAME=demo
+export OS_TENANT_NAME=demo
+export OS_PASSWORD=demo
+export OS_AUTH_URL=$OS_AUTH_URL
+export PS1='[\\u@\\h \\W(keystone_demo)]\\\$ '
+EOF
 
 if ! glance image-show cirros > /dev/null 2>&1; then
 glance image-create \
@@ -21,10 +27,7 @@ neutron subnet-create --disable-dhcp external 172.16.13.0/24
 
 nova flavor-create m1.nano auto 128 1 1
 
-export OS_TENANT_ID=
-export OS_TENANT_NAME=demo
-export OS_USERNAME=demo
-export OS_PASSWORD=demo
+. /root/keystonerc_demo
 
 neutron router-create extrouter
 neutron router-gateway-set extrouter external
@@ -32,4 +35,6 @@ neutron net-create net0
 neutron subnet-create --name net0-subnet0 net0 10.0.0.0/24
 neutron router-interface-add extrouter net0-subnet0
 
+neutron security-group-rule-create --protocol icmp default
+neutron security-group-rule-create --protocol tcp --port-range-min 22 --port-range-max 22 default
 

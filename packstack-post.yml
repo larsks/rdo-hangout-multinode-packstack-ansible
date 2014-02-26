@@ -1,0 +1,8 @@
+- hosts:
+    - controller
+    - compute
+  tasks:
+    - name: disable debug logging in nova
+      ini_file: dest=/etc/nova/nova.conf section=DEFAULT
+                option=debug value=true
+

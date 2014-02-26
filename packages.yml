@@ -1,0 +1,14 @@
+- hosts: all
+  tasks:
+    - yum: name={{item}} state=latest
+      with_items:
+        - vim-enhanced
+        - git
+        - screen
+        - tcpdump
+
+- hosts: compute
+  tasks:
+    - yum: name={{item}} state=latest
+      with_items:
+        - sysfsutils

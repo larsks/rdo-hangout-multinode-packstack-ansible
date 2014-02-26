@@ -137,7 +137,7 @@ CONFIG_CINDER_DB_PW=secret
 CONFIG_CINDER_KS_PW=secret
 
 # The Cinder backend to use, valid options are: lvm, gluster, nfs
-CONFIG_CINDER_BACKEND=gluster
+CONFIG_CINDER_BACKEND={{CONFIG_CINDER_BACKEND|default('lvm')}}
 
 # Create Cinder's volumes group. This should only be done for testing
 # on a proof-of-concept installation of Cinder.  This will create a
@@ -150,7 +150,7 @@ CONFIG_CINDER_VOLUMES_SIZE=20G
 
 # A single or comma separated list of gluster volume shares to mount,
 # eg: ip-address:/vol-name, domain:/vol-name
-CONFIG_CINDER_GLUSTER_MOUNTS={{hostvars['storage0'].storage_ip}}:/gv0
+CONFIG_CINDER_GLUSTER_MOUNTS={{CONFIG_CINDER_GLUSTER_MOUNTS|default('')}}
 
 # A single or comma seprated list of NFS exports to mount, eg: ip-
 # address:/export-name

@@ -1,46 +1,56 @@
 - hosts: storage
   gather_facts: false
+  pre_tasks:
+    - file: path=/export state=directory owner=root group=root mode=0755
+  roles:
+    - role: gluster-server
+    - role: gluster-brick
+      brick_device: /dev/vdb
+      brick_mountpoint: /export/vdb
+
+- hosts: storage
+  gather_facts: false
   tasks:
-    - file: path=/etc/yum.repos.d/gluster.repo state=file
-      ignore_errors: true
-      register: has_repo
-    - command: curl -sfL -o /etc/yum.repos.d/gluster.repo
-               http://download.gluster.org/pub/gluster/glusterfs/LATEST/CentOS/glusterfs-epel.repo
-      when: has_repo|failed
-    - yum: name={{item}} state=latest
+    - file: path=/export/vdb/brick_{{item}} state=directory owner=root group=root mode=0755
       with_items:
-        - glusterfs
-        - glusterfs-libs
-        - glusterfs-server
-        - glusterfs-fuse
-    - service: name=glusterd state=running enabled=true
-    - command: blkid /dev/vdb
-      ignore_errors: true
-      register: blkid
-    - command: mkfs -T ext4 -L brick0 /dev/vdb
-      when: blkid|failed
-    - file: path={{item}} state=directory owner=root group=root mode=0755
-      with_items:
-        - /export
-        - /export/vdb
-    - mount: fstype=ext4 name=/export/vdb src=/dev/vdb state=mounted
-    - file: path=/export/vdb/brick state=directory owner=root group=root mode=0755
+        - nova
+        - glance
+        - cinder
 
 - hosts: storage0
   gather_facts: false
   tasks:
     - command: gluster peer probe "{{hostvars[item].storage_ip}}"
       with_items: groups.storage
-    - command: gluster volume info gv0
-      ignore_errors: true
-      register: vol_exists
-    - command: gluster volume create gv0 replica 2
-               {{hostvars.storage0.storage_ip}}:/export/vdb/brick 
-               {{hostvars.storage1.storage_ip}}:/export/vdb/brick
-      when: vol_exists|failed
-    - command: gluster volume status gv0
-      register: vol_status
-      ignore_errors: true
-    - command: gluster volume start gv0
-      when: vol_status|failed
+
+- hosts: storage0
+  gather_facts: false
+  roles:
+    - role: gluster-volume
+      volume_name: cinder
+      volume_bricks: 
+        - "{{hostvars.storage0.storage_ip}}:/export/vdb/brick_cinder"
+        - "{{hostvars.storage1.storage_ip}}:/export/vdb/brick_cinder"
+      volume_options:
+        - {name: group, value: virt}
+        - {name: storage.owner-uid, value: 165}
+        - {name: storage.owner-gid, value: 165}
+    - role: gluster-volume
+      volume_name: nova
+      volume_bricks:
+        - "{{hostvars.storage0.storage_ip}}:/export/vdb/brick_nova"
+        - "{{hostvars.storage1.storage_ip}}:/export/vdb/brick_nova"
+      volume_options:
+        - {name: group, value: virt}
+        - {name: storage.owner-uid, value: 162}
+        - {name: storage.owner-gid, value: 162}
+    - role: gluster-volume
+      volume_name: glance
+      volume_bricks: 
+        - "{{hostvars.storage0.storage_ip}}:/export/vdb/brick_glance"
+        - "{{hostvars.storage1.storage_ip}}:/export/vdb/brick_glance"
+      volume_options:
+        - {name: group, value: virt}
+        - {name: storage.owner-uid, value: 161}
+        - {name: storage.owner-gid, value: 161}
 

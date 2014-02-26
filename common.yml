@@ -1,0 +1,6 @@
+- include: packages.yml
+- include: sshkeys.yml
+- include: etchosts.yml
+- include: interfaces.yml
+- include: localrepo.yml
+

@@ -2,8 +2,19 @@
 
 - hosts: controller
   gather_facts: false
-  tasks:
-    - yum: name=openstack-packstack state=latest
-    - template: src=answers.txt dest=/root/answers.txt
-    - command: chdir=/root packstack --answer-file answers.txt
+  vars:
+    compute_hosts: []
+    network_host: "{{hostvars.network.ansible_default_ipv4.address}}"
+  roles:
+    - role: havana
+      CONFIG_NOVA_COMPUTE_HOSTS: "{% for host in groups.compute %}{% do compute_hosts.append(hostvars[host].ansible_default_ipv4.address) %}{% endfor %}{{compute_hosts|join(',')}}"
+      CONFIG_NEUTRON_SERVER_HOST: "{{network_host}}"
+      CONFIG_NEUTRON_L3_HOSTS: "{{network_host}}"
+      CONFIG_NEUTRON_DHCP_HOSTS: "{{network_host}}"
+      CONFIG_NEUTRON_METADATA_HOSTS: "{{network_host}}"
+      CONFIG_NEUTRON_LBAAS_HOSTS: "{{network_host}}"
+      CONFIG_NEUTRON_OVS_TENANT_NETWORK_TYPE: gre
+      CONFIG_NEUTRON_OVS_TUNNEL_RANGES: "1000:3000"
+      CONFIG_NEUTRON_OVS_TUNNEL_IF: eth2
+      CONFIG_CEILOMETER_INSTALL: n
 

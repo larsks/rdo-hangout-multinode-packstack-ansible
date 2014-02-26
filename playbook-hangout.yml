@@ -2,6 +2,6 @@
 
 - include: common.yml
 - include: packstack.yml
-- include: packstack-post.yml
-- include: livemigration.yml
+  vars:
+    templateonly: true
 

@@ -4,7 +4,15 @@ gen_ssh_host_entry() {
 cat <<EOF
 Host $1 $2
 	HostName $2
+EOF
+
+if [ "$3" == proxy ]; then
+cat <<EOF
 	ProxyCommand ssh $user@$controller -W %h:%p
+EOF
+fi
+
+cat <<EOF
 	User $user
 	UserKnownHostsFile /dev/null
 	StrictHostkeyChecking no
@@ -12,6 +20,9 @@ EOF
 }
 
 stack_name=$1
+
+[ "$stack_name" ] || exit 1
+
 user=ec2-user
 
 echo "querying heat for outputs"
@@ -43,10 +54,10 @@ echo "generating ssh_config"
 cat > ssh_config <<EOF
 $(gen_ssh_host_entry controller $controller)
 $(gen_ssh_host_entry network $network)
-$(gen_ssh_host_entry compute0 $compute0)
-$(gen_ssh_host_entry compute1 $compute1)
-$(gen_ssh_host_entry storage0 $storage0)
-$(gen_ssh_host_entry storage1 $storage1)
+$(gen_ssh_host_entry compute0 $compute0 proxy)
+$(gen_ssh_host_entry compute1 $compute1 proxy)
+$(gen_ssh_host_entry storage0 $storage0 proxy)
+$(gen_ssh_host_entry storage1 $storage1 proxy)
 EOF
 
 #echo "generating answers file"

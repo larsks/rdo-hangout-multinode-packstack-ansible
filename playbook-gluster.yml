@@ -1,0 +1,14 @@
+- hosts: all
+
+- include: common.yml
+- include: gluster_servers.yml
+
+- include: packstack.yml
+  vars:
+    CONFIG_CINDER_BACKEND: gluster
+    CONFIG_CINDER_GLUSTER_MOUNTS: {{hostvars.storage0.storage_ip}}:/cinder
+- include: packstack-post.yml
+
+- include: gluster_clients.yml
+- include: livemigration.yml
+

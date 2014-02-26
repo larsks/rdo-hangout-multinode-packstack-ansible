@@ -1,22 +1,10 @@
-# This has to happen after the packstack install because we need
-# the "nova" and "glance" users to exist.
-- hosts: controller
-  gather_facts: false
-  tasks:
-    - name: create nova and glance data directories
-      file: path={{item.path}} state=directory owner={{item.owner}} group={{item.owner}}
-      with_items:
-        - {path: /mnt/gluster/glance, owner: glance}
-        - {path: /mnt/gluster/nova, owner: nova}
-
 - hosts: compute
+  gather_facts: false
   tasks:
     - name: configure nova to support live migration
       ini_file: dest=/etc/nova/nova.conf section=DEFAULT
                 option={{item.option}} value={{item.value}}
-                backup=yes
       with_items:
-        - {option: "instances_path",      value: "/mnt/gluster/nova"}
         - {option: "live_migration_uri",  value: "qemu+tcp://%s/system"}
         - {option: "vncserver_listen",    value: "0.0.0.0"}
         - {option: "live_migration_flag",
@@ -27,21 +15,20 @@
                   line="{{item.line}}"
                   state=present
                   regexp="{{item.regexp}}"
-                  insertafter=yes
       with_items:
-        - {line: "listen_tcp=1", regexp="^#?listen_tcp"}
-        - {line: "listen_tls=0", regexp="^#?listen_tls"}
-        - {line: "dynamic_ownership=0", regexp="^#?dynamic_ownership"}
-        - {line: "auth_tcp=\"none\"", regexp="^#?auth_tcp"}
-        - {line: "auth_tcp=\"{{ansible_default_ipv4.address}}\"", regexp="^#?listen_addr"}
+        - {line: "listen_tcp=1", regexp: "^listen_tcp"}
+        - {line: "listen_tls=0", regexp: "^listen_tls"}
+        - {line: "dynamic_ownership=0", regexp: "^dynamic_ownership"}
+        - {line: 'auth_tcp=\"none\"', regexp: "^auth_tcp"}
+        - {line: 'listen_addr=\"0.0.0.0\"', regexp: "^listen_addr"}
       notify: restart libvirtd
     - name: enable libvirtd network support
       lineinfile: dest=/etc/sysconfig/libvirtd
-                  line='LIBVIRTD_ARGS="--listen"'
+                  line='LIBVIRTD_ARGS=\"--listen\"'
                   state=present
-                  regexp="^.?LIBVIRTD_ARGS"
-                  insertafter=yes
+                  regexp="^LIBVIRTD_ARGS"
       notify: restart libvirtd
+    - service: name=libvirtd state=running enabled=true
   handlers:
     - name: restart nova
       command: openstack-service restart nova
