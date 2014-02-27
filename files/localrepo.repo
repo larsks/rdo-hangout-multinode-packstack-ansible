@@ -1,6 +1,6 @@
 [local]
 name=Local repository
-baseurl=http://localrepo.local/openstack/
+baseurl=http://localrepo.local/repo/openstack/
 enabled=1
 gpgcheck=0
 priority=1

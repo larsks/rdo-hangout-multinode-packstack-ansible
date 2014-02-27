@@ -14,9 +14,14 @@ export OS_AUTH_URL=$OS_AUTH_URL
 export PS1='[\\u@\\h \\W(keystone_demo)]\\\$ '
 EOF
 
+
 . /root/keystonerc_demo
+
+ssh-keygen -t rsa -b 2048 -N '' -f id_rsa_demo
+nova keypair-add --pub-key id_rsa_demo.pub demo
+
 neutron net-create net0
-neutron subnet-create --name net0-subnet0 net0 10.0.0.0/24
+neutron subnet-create --name net0-subnet0 --dns-nameserver 8.8.8.8 net0 10.0.0.0/24
 neutron router-create extrouter
 neutron router-gateway-set extrouter external
 neutron router-interface-add extrouter net0-subnet0
