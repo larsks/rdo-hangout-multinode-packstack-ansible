@@ -1,4 +1,4 @@
-. /root/keystonrc_admin
+. /root/keystonerc_admin
 
 neutron net-create external --router:external=True
 neutron subnet-create --disable-dhcp external 172.16.13.0/24
