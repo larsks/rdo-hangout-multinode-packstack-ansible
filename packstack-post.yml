@@ -4,5 +4,10 @@
   tasks:
     - name: disable debug logging in nova
       ini_file: dest=/etc/nova/nova.conf section=DEFAULT
-                option=debug value=true
+                option=debug value=false
+      notify: restart nova
+  handlers:
+    - name: restart nova
+      command: openstack-service restart nova
+
 

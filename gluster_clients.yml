@@ -22,4 +22,7 @@
         - {option: "qemu_allowed_storage_drivers",
             value: "gluster"}
       notify: restart nova
+  handlers:
+    - name: restart nova
+      command: openstack-service restart nova
 
