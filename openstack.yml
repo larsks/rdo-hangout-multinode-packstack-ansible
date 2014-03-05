@@ -111,17 +111,18 @@ resources:
   ## INSTANCES
   ##
 
-  osapi:
+  controller:
     type: OS::Nova::Server
     properties:
+      name: controller
       flavor: {get_param: controller_flavor}
       image: {get_param: image}
       key_name: { get_param: key_name }
       networks:
-        - port: { get_resource: osapi_eth0 }
-        - port: { get_resource: osapi_eth1 }
-        - port: { get_resource: osapi_eth2 }
-  osapi_eth0:
+        - port: { get_resource: controller_eth0 }
+        - port: { get_resource: controller_eth1 }
+        - port: { get_resource: controller_eth2 }
+  controller_eth0:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: net_control }
@@ -129,7 +130,7 @@ resources:
         - {get_param: all_open_sg}
       fixed_ips:
         - subnet_id: { get_resource: subnet_control }
-  osapi_eth1:
+  controller_eth1:
     type: OS::Neutron::Port
     properties:
       network_id: { get_param: install_net_id }
@@ -137,7 +138,7 @@ resources:
         - {get_param: all_open_sg}
       fixed_ips:
         - subnet_id: { get_param: install_subnet_id }
-  osapi_eth2:
+  controller_eth2:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: net_storage }
@@ -145,23 +146,24 @@ resources:
         - {get_param: all_open_sg}
       fixed_ips:
         - subnet_id: { get_resource: subnet_storage }
-  osapi_floating:
+  controller_floating:
     type: OS::Neutron::FloatingIP
     properties:
       floating_network_id: { get_param: public_net_id }
-      port_id: { get_resource: osapi_eth0 }
+      port_id: { get_resource: controller_eth0 }
 
-  osnetwork:
+  network:
     type: OS::Nova::Server
     properties:
+      name: network
       flavor: {get_param: network_flavor}
       image: {get_param: image}
       key_name: { get_param: key_name }
       networks:
-        - port: { get_resource: osnetwork_eth0 }
-        - port: { get_resource: osnetwork_eth1 }
-        - port: { get_resource: osnetwork_eth2 }
-  osnetwork_eth0:
+        - port: { get_resource: network_eth0 }
+        - port: { get_resource: network_eth1 }
+        - port: { get_resource: network_eth2 }
+  network_eth0:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: net_control }
@@ -169,7 +171,7 @@ resources:
         - subnet_id: { get_resource: subnet_control }
       security_groups:
         - {get_param: all_open_sg}
-  osnetwork_eth1:
+  network_eth1:
     type: OS::Neutron::Port
     properties:
       network_id: { get_param: install_net_id }
@@ -177,7 +179,7 @@ resources:
         - {get_param: all_open_sg}
       fixed_ips:
         - subnet_id: { get_param: install_subnet_id }
-  osnetwork_eth2:
+  network_eth2:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: net_instance }
@@ -185,24 +187,25 @@ resources:
         - subnet_id: { get_resource: subnet_instance }
       security_groups:
         - {get_param: all_open_sg}
-  osnetwork_floating:
+  network_floating:
     type: OS::Neutron::FloatingIP
     properties:
       floating_network_id: { get_param: public_net_id }
-      port_id: { get_resource: osnetwork_eth0 }
+      port_id: { get_resource: network_eth0 }
 
-  oscompute0:
+  compute0:
     type: OS::Nova::Server
     properties:
+      name: compute0
       flavor: {get_param: compute_flavor}
       image: {get_param: image}
       key_name: { get_param: key_name }
       networks:
-        - port: { get_resource: oscompute0_eth0 }
-        - port: { get_resource: oscompute0_eth1 }
-        - port: { get_resource: oscompute0_eth2 }
-        - port: { get_resource: oscompute0_eth3 }
-  oscompute0_eth0:
+        - port: { get_resource: compute0_eth0 }
+        - port: { get_resource: compute0_eth1 }
+        - port: { get_resource: compute0_eth2 }
+        - port: { get_resource: compute0_eth3 }
+  compute0_eth0:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: net_control }
@@ -210,7 +213,7 @@ resources:
         - subnet_id: { get_resource: subnet_control }
       security_groups:
         - {get_param: all_open_sg}
-  oscompute0_eth1:
+  compute0_eth1:
     type: OS::Neutron::Port
     properties:
       network_id: { get_param: install_net_id }
@@ -218,7 +221,7 @@ resources:
         - {get_param: all_open_sg}
       fixed_ips:
         - subnet_id: { get_param: install_subnet_id }
-  oscompute0_eth2:
+  compute0_eth2:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: net_instance }
@@ -226,7 +229,7 @@ resources:
         - subnet_id: { get_resource: subnet_instance }
       security_groups:
         - {get_param: all_open_sg}
-  oscompute0_eth3:
+  compute0_eth3:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: net_storage }
@@ -235,18 +238,19 @@ resources:
       security_groups:
         - {get_param: all_open_sg}
 
-  oscompute1:
+  compute1:
     type: OS::Nova::Server
     properties:
+      name: compute1
       flavor: {get_param: compute_flavor}
       image: {get_param: image}
       key_name: { get_param: key_name }
       networks:
-        - port: { get_resource: oscompute1_eth0 }
-        - port: { get_resource: oscompute1_eth1 }
-        - port: { get_resource: oscompute1_eth2 }
-        - port: { get_resource: oscompute1_eth3 }
-  oscompute1_eth0:
+        - port: { get_resource: compute1_eth0 }
+        - port: { get_resource: compute1_eth1 }
+        - port: { get_resource: compute1_eth2 }
+        - port: { get_resource: compute1_eth3 }
+  compute1_eth0:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: net_control }
@@ -254,7 +258,7 @@ resources:
         - subnet_id: { get_resource: subnet_control }
       security_groups:
         - {get_param: all_open_sg}
-  oscompute1_eth1:
+  compute1_eth1:
     type: OS::Neutron::Port
     properties:
       network_id: { get_param: install_net_id }
@@ -262,7 +266,7 @@ resources:
         - {get_param: all_open_sg}
       fixed_ips:
         - subnet_id: { get_param: install_subnet_id }
-  oscompute1_eth2:
+  compute1_eth2:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: net_instance }
@@ -270,7 +274,7 @@ resources:
         - subnet_id: { get_resource: subnet_instance }
       security_groups:
         - {get_param: all_open_sg}
-  oscompute1_eth3:
+  compute1_eth3:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: net_storage }
@@ -279,17 +283,18 @@ resources:
       security_groups:
         - {get_param: all_open_sg}
 
-  osstorage0:
+  storage0:
     type: OS::Nova::Server
     properties:
+      name: storage0
       flavor: {get_param: storage_flavor}
       image: {get_param: image}
       key_name: { get_param: key_name }
       networks:
-        - port: { get_resource: osstorage0_eth0 }
-        - port: { get_resource: osstorage0_eth1 }
-        - port: { get_resource: osstorage0_eth2 }
-  osstorage0_eth0:
+        - port: { get_resource: storage0_eth0 }
+        - port: { get_resource: storage0_eth1 }
+        - port: { get_resource: storage0_eth2 }
+  storage0_eth0:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: net_control }
@@ -297,7 +302,7 @@ resources:
         - subnet_id: { get_resource: subnet_control }
       security_groups:
         - {get_param: all_open_sg}
-  osstorage0_eth1:
+  storage0_eth1:
     type: OS::Neutron::Port
     properties:
       network_id: { get_param: install_net_id }
@@ -305,7 +310,7 @@ resources:
         - {get_param: all_open_sg}
       fixed_ips:
         - subnet_id: { get_param: install_subnet_id }
-  osstorage0_eth2:
+  storage0_eth2:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: net_storage }
@@ -314,17 +319,18 @@ resources:
       security_groups:
         - {get_param: all_open_sg}
 
-  osstorage1:
+  storage1:
     type: OS::Nova::Server
     properties:
+      name: storage1
       flavor: {get_param: storage_flavor}
       image: {get_param: image}
       key_name: { get_param: key_name }
       networks:
-        - port: { get_resource: osstorage1_eth0 }
-        - port: { get_resource: osstorage1_eth1 }
-        - port: { get_resource: osstorage1_eth2 }
-  osstorage1_eth0:
+        - port: { get_resource: storage1_eth0 }
+        - port: { get_resource: storage1_eth1 }
+        - port: { get_resource: storage1_eth2 }
+  storage1_eth0:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: net_control }
@@ -332,7 +338,7 @@ resources:
         - subnet_id: { get_resource: subnet_control }
       security_groups:
         - {get_param: all_open_sg}
-  osstorage1_eth1:
+  storage1_eth1:
     type: OS::Neutron::Port
     properties:
       network_id: { get_param: install_net_id }
@@ -340,7 +346,7 @@ resources:
         - {get_param: all_open_sg}
       fixed_ips:
         - subnet_id: { get_param: install_subnet_id }
-  osstorage1_eth2:
+  storage1_eth2:
     type: OS::Neutron::Port
     properties:
       network_id: { get_resource: net_storage }
@@ -366,50 +372,48 @@ resources:
   vol_brick0_attach:
     type: OS::Cinder::VolumeAttachment
     properties:
-      instance_uuid: {get_resource: osstorage0}
+      instance_uuid: {get_resource: storage0}
       volume_id: {get_resource: vol_brick0}
       mountpoint: /dev/vdc
   vol_brick1_attach:
     type: OS::Cinder::VolumeAttachment
     properties:
-      instance_uuid: {get_resource: osstorage1}
+      instance_uuid: {get_resource: storage1}
       volume_id: {get_resource: vol_brick1}
       mountpoint: /dev/vdc
 
 
 outputs:
 
-  osapi_external_ip:
+  controller_external_ip:
     description: controller external ip address
-    value: {get_attr: [osapi_floating, floating_ip_address]}
-  osnetwork_external_ip:
+    value: {get_attr: [controller_floating, floating_ip_address]}
+  network_external_ip:
     description: network host external ip address
-    value: {get_attr: [osnetwork_floating, floating_ip_address]}
+    value: {get_attr: [network_floating, floating_ip_address]}
 
-  osapi_internal_ip:
-    value: {get_attr: [osapi_eth0, fixed_ips]}
+  controller_internal_ip:
+    value: {get_attr: [controller_eth0, fixed_ips]}
     description: controller internal ip address
-  osnetwork_internal_ip:
-    value: {get_attr: [osnetwork_eth0, fixed_ips]}
+  network_internal_ip:
+    value: {get_attr: [network_eth0, fixed_ips]}
     description: network host internal ip address
-  oscompute0_internal_ip:
-    value: {get_attr: [oscompute0_eth0, fixed_ips]}
+  compute0_internal_ip:
+    value: {get_attr: [compute0_eth0, fixed_ips]}
     description: compute0 internal ip address
-  oscompute1_internal_ip:
-    value: {get_attr: [oscompute1_eth0, fixed_ips]}
+  compute1_internal_ip:
+    value: {get_attr: [compute1_eth0, fixed_ips]}
     description: compute1 internal ip address
-  osstorage0_internal_ip:
-    value: {get_attr: [osstorage0_eth0, fixed_ips]}
+  storage0_internal_ip:
+    value: {get_attr: [storage0_eth0, fixed_ips]}
     description: storage0 internal ip address
-  osstorage1_internal_ip:
-    value: {get_attr: [osstorage1_eth0, fixed_ips]}
+  storage1_internal_ip:
+    value: {get_attr: [storage1_eth0, fixed_ips]}
     description: storage1 internal ip address
-  osstorage0_storage_ip:
-    value: {get_attr: [osstorage0_eth2, fixed_ips]}
+  storage0_storage_ip:
+    value: {get_attr: [storage0_eth2, fixed_ips]}
     description: storage0 storage ip address
-  osstorage1_storage_ip:
-    value: {get_attr: [osstorage1_eth2, fixed_ips]}
+  storage1_storage_ip:
+    value: {get_attr: [storage1_eth2, fixed_ips]}
     description: storage1 storage ip address
-
-
 
