@@ -1,10 +1,20 @@
 . /root/keystonerc_admin
 
+glance image-create \
+	       --copy-from http://download.cirros-cloud.net/0.3.1/cirros-0.3.1-x86_64-disk.img \
+	       --is-public true \
+	       --container-format bare \
+	       --disk-format qcow2 \
+	       --name cirros
+
 neutron net-create external --router:external=True
 neutron subnet-create --disable-dhcp external 172.16.13.0/24
 nova flavor-create m1.nano auto 128 1 1
 keystone tenant-create --name demo
 keystone user-create --name demo --tenant demo --pass demo
+
+# wait for neutron to settle?
+sleep 5
 
 cat > /root/keystonerc_demo <<EOF
 export OS_USERNAME=demo
@@ -13,7 +23,6 @@ export OS_PASSWORD=demo
 export OS_AUTH_URL=$OS_AUTH_URL
 export PS1='[\\u@\\h \\W(keystone_demo)]\\\$ '
 EOF
-
 
 . /root/keystonerc_demo
 
