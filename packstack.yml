@@ -1,6 +1,8 @@
 - hosts: all
+  tags: packstack
 
 - hosts: controller
+  tags: packstack
   gather_facts: false
   vars:
     compute_hosts: []
