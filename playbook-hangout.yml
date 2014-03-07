@@ -3,5 +3,5 @@
 - include: common.yml
 - include: packstack.yml
   vars:
-    templateonly: true
+    packstack_templateonly: true
 
